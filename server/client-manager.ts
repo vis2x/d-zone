@@ -45,7 +45,7 @@ export class ClientManager {
 	}
 
 	private websocketOnConnectionOpen(client: ws) {
-		console.log(`😺 New websocket connection - ${new Date()}`)
+		console.log(`😺 New websocket connection - ${new Date().toLocaleString()}`)
 		this.clients.set(client, {})
 	}
 
