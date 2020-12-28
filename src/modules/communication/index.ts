@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { IClientPayload } from 'root/typings/client-payload'
-import { IServerPayload } from '../../../typings/server-payload'
+import { IServerPayload } from 'root/typings/server-payload'
 
 /**
  * Communication hook

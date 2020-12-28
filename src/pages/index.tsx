@@ -33,7 +33,7 @@ export default function Home() {
 
 			<Layout>
 				<Title>Hey there!</Title>
-				<Game></Game>
+				<Game />
 			</Layout>
 		</>
 	)

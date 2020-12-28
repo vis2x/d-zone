@@ -68,7 +68,7 @@ export class ClientManager {
 		author,
 	}: discord.Message) {
 		for (const [client, { guild }] of this.clients) {
-			if (guildID === guild?.id)
+			if (guild && guildID === guild.id)
 				await this.websocketServer.sendMessage(client, {
 					name: 'MESSAGE',
 					event: {
