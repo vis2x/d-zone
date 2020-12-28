@@ -5,6 +5,7 @@ import Map3D from './common/map-3d'
 import { registerECS } from './engine/register-ecs'
 import { seedGame } from './engine/seed-dev'
 import type { Entity } from 'ape-ecs'
+import type { IServerPayload } from 'root/typings/server-payload'
 
 const TICKS_PER_SECOND = 60
 
@@ -34,7 +35,12 @@ export default class Game {
 	}
 
 	exit() {
+		console.log('Shutting down game')
 		this.renderer.stop()
 		this.engine.stop()
+	}
+
+	sendMessage(msg: IServerPayload) {
+		console.log(msg)
 	}
 }
