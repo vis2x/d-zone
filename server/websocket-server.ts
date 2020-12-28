@@ -14,7 +14,7 @@ export interface WebSocketServerEvents<ClientPayload> {
  * Thin wrapper around ws for better API.
  *
  * Emits error event with AppError Handles parsing of messages from and to
- * server Should handle heartbeating in next versions
+ * server Should handle heart-beating in next versions
  */
 export class WebSocketServer<
 	ServerPayload extends unknown,

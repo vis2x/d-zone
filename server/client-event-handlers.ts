@@ -7,11 +7,11 @@ import { ServerError } from '../typings/server-payload'
 /**
  * Handles subscription of a client to a servers messages
  *
- * @param __namedParamaters - Options
- * @param __namedParamaters.discordClient - Discord client
- * @param __namedParamaters.event - Subscription event
- * @param __namedParamaters.wsClient - Websocket client
- * @param __namedParamaters.wsClientDiscordGuildIdMap - Client and discord guild map
+ * @param __namedParameters - Options
+ * @param __namedParameters.discordClient - Discord client
+ * @param __namedParameters.event - Subscription event
+ * @param __namedParameters.wsClient - Websocket client
+ * @param __namedParameters.wsClientDiscordGuildIdMap - Client and discord guild map
  */
 export async function handleSubscription({
 	discordClient,

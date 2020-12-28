@@ -1,5 +1,5 @@
 /**
- * Handle errors throughtout App
+ * Handle errors throughout App
  *
  * @param error - Error
  */
@@ -11,7 +11,7 @@ export function handleError(error: Error) {
 }
 
 /**
- * Wrap errorable async functions
+ * Wrap error-able async functions
  *
  * @param asyncFn - Function to be wrapped
  * @returns Error safe function proxy

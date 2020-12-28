@@ -50,7 +50,7 @@ export class ClientManager {
 	}
 
 	private websocketOnConnectionClose(client: ws, reason: string) {
-		console.log(`🙀 Websocket connecindtion closed - Reason: ${reason}`)
+		console.log(`🙀 Websocket connection closed - Reason: ${reason}`)
 		this.clients.delete(client)
 	}
 
