@@ -1,12 +1,14 @@
 import http, { createServer as createHTTPServer } from 'http'
 import next from 'next'
 import url from 'url'
-import ws from 'ws'
 import discord from 'eris'
 
 import { parseConfig } from './utils/config'
 import { handleError } from './utils/error'
-import { manageClients } from './client-manager'
+import { ClientManager } from './client-manager'
+import { WebSocketServer } from './websocket-server'
+import { IServerPayload } from 'typings/server-payload'
+import { IClientPayload } from 'typings/client-payload'
 
 /** Main function. Everything starts here. */
 async function main() {
@@ -20,8 +22,15 @@ async function main() {
 	// Create servers and discord client
 	const NEXTRequestHandler = await createNEXTRequestHandler(config.dev)
 	const httpServer = createHTTPServer(NEXTRequestHandler)
-	const wsServer = new ws.Server({ server: httpServer })
+	const wsServer = new WebSocketServer<IServerPayload, IClientPayload>(
+		httpServer
+	)
 	const discordClient = new discord.Client(config.discord.token)
+
+	// Client manager
+	// Manages clients
+	// While handling websocket and discord client communication
+	const clientsManager = new ClientManager(wsServer, discordClient)
 
 	// Error handlers
 	httpServer.on('error', handleError)
@@ -34,9 +43,7 @@ async function main() {
 		httpServer.listen(config.port)
 		console.log(`❄️ Listening on ${config.port}`)
 
-		// Manages clients
-		// While handling websocket and discord client communication
-		manageClients(wsServer, discordClient)
+		clientsManager.init()
 	})
 
 	// Start discord client
