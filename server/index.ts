@@ -39,7 +39,9 @@ async function main() {
 
 	// Start only once discord client is ready
 	discordClient.on('ready', () => {
-		console.log(`❄️ Connected as ${discordClient.user.username}`)
+		console.log(
+			`❄️ Connected as ${discordClient.user.username} on ${discordClient.guilds.size} servers`
+		)
 		httpServer.listen(config.port)
 		console.log(`❄️ Listening on ${config.port}`)
 
