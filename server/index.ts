@@ -42,10 +42,13 @@ async function main() {
 		console.log(
 			`❄️ Connected as ${discordClient.user.username} on ${discordClient.guilds.size} servers`
 		)
-		httpServer.listen(config.port)
-		console.log(`❄️ Listening on ${config.port}`)
+		// If this is discord reconnecting, do not listen & init again
+		if (!httpServer.listening) {
+			httpServer.listen(config.port)
+			console.log(`❄️ Listening on ${config.port}`)
 
-		clientsManager.init()
+			clientsManager.init()
+		}
 	})
 
 	// Start discord client
