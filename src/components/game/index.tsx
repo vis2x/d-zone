@@ -1,22 +1,27 @@
 import React, { useEffect, useRef } from 'react'
+
 import Game from '../../modules/game'
-import { Client } from '../../modules/websocket/index.worker'
+import { useComms } from '../../modules/communication'
 
 export const GameComponent = () => {
 	const canvasRef = useRef<HTMLCanvasElement>(null)
-	const game = new Game()
-	const client = new Client()
+	const { current: game } = useRef(new Game())
+	const { serverMessage } = useComms()
 
 	useEffect(() => {
-		client.init()
 		if (canvasRef.current) game.init(canvasRef.current).catch(console.error)
-
-		return () => {
-			game.exit()
-		}
+		return () => game.exit()
 	}, [canvasRef])
 
-	return <canvas ref={canvasRef} />
+	return (
+		<div>
+			<code>
+				<pre>{JSON.stringify(serverMessage, null, 4)}</pre>
+			</code>
+
+			<canvas ref={canvasRef} />
+		</div>
+	)
 }
 
 export default GameComponent

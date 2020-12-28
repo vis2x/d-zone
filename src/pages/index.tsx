@@ -6,8 +6,8 @@ import dynamic from 'next/dynamic'
 const Layout = styled.div`
 	height: 100vh;
 	display: flex;
+	flex-direction: column;
 	align-items: center;
-	justify-content: center;
 `
 
 const Title = styled.h1`
@@ -19,6 +19,11 @@ const Game = dynamic(() => import('root/src/components/game'), {
 	ssr: false,
 })
 
+/**
+ * Home page
+ *
+ * @returns Page
+ */
 export default function Home() {
 	return (
 		<>

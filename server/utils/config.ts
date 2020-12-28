@@ -1,18 +1,30 @@
 import 'dotenv/config'
 import * as z from 'zod'
+import { OnlyKeys } from '../../typings/util'
 
 const schema = z.object({
-	discordClientToken: z.string(),
+	discord: z.object({
+		token: z.string(),
+	}),
 	port: z.number(),
 	dev: z.boolean(),
 })
 
-const rawConfig = {
-	discordClientToken: process.env.DISCORD_CLIENT_TOKEN,
-	port: parseInt(process.env.PORT || '3000', 10),
-	dev: process.env.NODE_ENV !== 'production',
+/** Parsed configuration */
+export type Config = z.infer<typeof schema>
+
+/**
+ * Parse configuration
+ *
+ * @param config - Configuration to be parsed
+ * @returns Parsed configuration
+ */
+export function parseConfig(config: OnlyKeys<Config>): Config {
+	return schema.parse(config)
 }
 
-const config = schema.parse(rawConfig)
-
-export default config
+// {
+// 	discordClientToken: process.env.DISCORD_CLIENT_TOKEN,
+// 	port: parseInt(process.env.PORT || '3000', 10),
+// 	dev: process.env.NODE_ENV !== 'production',
+// }
