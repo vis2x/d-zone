@@ -1,13 +1,17 @@
 import type { Entity, World } from 'ape-ecs'
-import type { IGrid, IGridDirection } from '../../typings'
-import type Map3D from '../../common/map-3d'
-import { Cell3D } from '../../common/cell-3d'
+import type { Animations, IGrid, IGridDirection, ITexture } from '../../typings'
+import Map3D from '../../common/map-3d'
 import Transform from '../components/transform'
-import Sprite from '../components/sprite'
+import Texture from '../components/texture'
+import Draw from '../components/draw'
 import Actor from '../components/actor'
-import MapCell from '../components/map-cell'
+import Map from '../components/map'
 import Hop from '../components/hop'
-import { randomColor, randomHop, randomString } from '../seed-dev'
+import { Tags } from '../'
+import { randomColor, getRandomDirection, randomString } from '../seed-dev'
+import { HOP_TICKS_PER_FRAME, SPRITE_DEFINITIONS } from '../../config/sprite'
+import { Direction } from '../../typings'
+import Animation from 'web/modules/game/engine/components/animation'
 
 /** An ordered list of relative Z levels (heights) to try hopping to. */
 const HOP_Z_LEVELS = [0, 1, -1] as const
@@ -20,16 +24,25 @@ const HOP_Z_LEVELS = [0, 1, -1] as const
  * @param map - The map instance to add the actor map cell to.
  * @returns - The created actor entity.
  */
-export function createActor(world: World, grid: IGrid, map: Map3D): Entity {
-	return world.createEntity({
+export function createActor(
+	world: World,
+	grid: IGrid,
+	map: Map3D<Entity>
+): Entity {
+	const actor = world.createEntity({
 		c: {
 			[Transform.key]: {
 				type: Transform.typeName,
 				...grid,
 			},
-			[Sprite.key]: {
-				type: Sprite.typeName,
-				texture: 'cube:0',
+			[Texture.key]: {
+				type: Texture.typeName,
+				anchorX: SPRITE_DEFINITIONS.cube.anchor.x,
+				anchorY: SPRITE_DEFINITIONS.cube.anchor.y,
+				name: getCubeTextureName(getRandomDirection().direction),
+			},
+			[Draw.key]: {
+				type: Draw.typeName,
 			},
 			[Actor.key]: {
 				type: Actor.typeName,
@@ -37,71 +50,81 @@ export function createActor(world: World, grid: IGrid, map: Map3D): Entity {
 				username: randomString([32, 126], Math.floor(Math.random() * 12) + 3),
 				color: randomColor(),
 			},
-			[MapCell.key]: {
-				type: MapCell.typeName,
-				cell: new Cell3D({
-					map,
-					...grid,
-					attributes: { solid: true, platform: true },
-				}),
+			[Map.key]: {
+				type: Map.typeName,
+				map,
 			},
 		},
+		tags: [Tags.Solid, Tags.Platform],
 	})
+	map.addCellToGrid(actor, grid)
+	return actor
 }
 
 /**
  * Adds a [[Hop]] component to the input actor entity.
  *
+ * Note: If the actor already has a hop component, this will not add another.
+ *
  * @param actor - The actor entity to hop.
  * @param direction - The direction of the hop. If not provided, a random
  *     direction will be chosen.
- * @remarks
- * If the actor already has a hop component, this will not add another.
  */
-export function hopActor(actor: Entity, direction?: IGridDirection) {
+export function addHopComponent(
+	actor: Entity,
+	direction?: IGridDirection
+): void {
 	if (actor.has(Hop.typeName)) return // Already hopping
 	actor.addComponent({
 		type: Hop.typeName,
 		key: Hop.key,
-		...(direction || randomHop()),
+		...(direction || getRandomDirection()),
 	})
 }
 
 /**
- * Creates a child cell at the specified relative grid location.
+ * Adds an [[Animation]] component to the input actor entity based on the
+ * actor's [[Hop]] component.
  *
- * @param cell - The parent cell to create a child from.
- * @param target - The relative grid location to reserve.
- * @remarks
- * This is used to prevent other solid entities from moving to
- *     the
- *
- *
- *
- *
- *           target location.
+ * @param actor - The actor entity to animate.
+ * @param hop - The actor's hop component.
+ * @param animations - The animations object from [[Resources]].
  */
-export function reserveTarget(cell: Cell3D, target: IGrid): void {
-	cell.spread(target, { solid: true })
+export function addHopAnimationComponent(
+	actor: Entity,
+	hop: Hop,
+	animations: Animations
+): void {
+	let animationName = `hop-${hop.direction}`
+	if (hop.z > 0) animationName += '-up'
+	if (hop.z < 0) animationName += '-down'
+	actor.addComponent({
+		type: Animation.typeName,
+		key: Animation.key,
+		ticksPerFrame: HOP_TICKS_PER_FRAME,
+		frames: animations[animationName],
+	})
 }
 
 /**
  * Checks for the validity of an actor's hop.
  *
- * @param cell - The actor cell that is attempting to hop.
+ * @param actor - The grid location of the actor attempting to hop.
  * @param hop - The relative grid location of the hop.
+ * @param map - The map containing the actor entity.
  * @returns - A valid hop target or `false` if one cannot be found.
  */
-export function getValidHop(cell: Cell3D, hop: IGrid): IGrid | false {
-	const aboveNeighbor = cell.getCellsAtNeighbor({ x: 0, y: 0, z: 1 })
-	if (aboveNeighbor.some((cell) => cell.attributes.solid)) return false
-	const target = { x: cell.x + hop.x, y: cell.y + hop.y, z: cell.z }
+export function getValidHop(
+	actor: IGrid,
+	hop: IGrid,
+	map: Map3D<Entity>
+): IGrid | false {
+	const cellsAboveGrid = map.getCellsAtGrid({ ...actor, z: actor.z + 1 })
+	if ([...cellsAboveGrid].some((cell) => cell.has(Tags.Solid))) return false
+	const target = { x: actor.x + hop.x, y: actor.y + hop.y, z: actor.z }
 	for (const z of HOP_Z_LEVELS) {
-		target.z = cell.z + z
-		if (
-			gridIsAbovePlatform(cell.map, target) &&
-			gridIsEmpty(cell.map, target)
-		) {
+		target.z = actor.z + z
+		if (gridIsAbovePlatform(map, target) && gridIsEmpty(map, target)) {
 			return { ...hop, z }
 		}
 	}
@@ -115,11 +138,11 @@ export function getValidHop(cell: Cell3D, hop: IGrid): IGrid | false {
  * @param grid - The grid location to check.
  * @returns - Grid locations containing no solids will return true.
  */
-function gridIsEmpty(map: Map3D, grid: IGrid): boolean {
+function gridIsEmpty(map: Map3D<Entity>, grid: IGrid): boolean {
 	// If grid is below ground, it's not empty
 	if (grid.z < 0) return false
-	const cells = map.getCellsAtGrid(grid)
-	return !cells.some((cell) => cell.attributes.solid)
+	const cells = [...map.getCellsAtGrid(grid)]
+	return !cells.some((cell) => cell.has(Tags.Solid))
 }
 
 /**
@@ -129,12 +152,48 @@ function gridIsEmpty(map: Map3D, grid: IGrid): boolean {
  * @param grid - The grid location to check.
  * @returns - Grid locations that are one unit above a platform will return true.
  */
-function gridIsAbovePlatform(map: Map3D, grid: IGrid): boolean {
+function gridIsAbovePlatform(map: Map3D<Entity>, grid: IGrid): boolean {
 	// If grid is at ground level, it's on a platform
 	if (grid.z <= 0) return true
-	const underNewTarget = map.getCellsAtGrid({
-		...grid,
-		z: grid.z - 1,
-	})
-	return underNewTarget.some((cell) => cell.attributes.platform)
+	const underNewTarget = [
+		...map.getCellsAtGrid({
+			...grid,
+			z: grid.z - 1,
+		}),
+	]
+	return underNewTarget.some((cell) => cell.has(Tags.Platform))
+}
+
+/**
+ * Gets a cube texture based on direction.
+ *
+ * @param direction - The direction of the actor.
+ * @returns - The texture corresponding to the input direction.
+ */
+export function getDirectionalCubeTexture(direction: Direction): ITexture {
+	return {
+		anchorX: SPRITE_DEFINITIONS.cube.anchor.x,
+		anchorY: SPRITE_DEFINITIONS.cube.anchor.y,
+		name: getCubeTextureName(direction),
+	}
+}
+
+/**
+ * Gets a directional cube texture name.
+ *
+ * @param direction - The direction of the actor.
+ * @returns - The texture name corresponding to the input direction.
+ */
+function getCubeTextureName(
+	direction: Direction
+): 'cube:0' | 'cube:1' | 'cube:2' {
+	switch (direction) {
+		case Direction.East:
+			return 'cube:0'
+		case Direction.South:
+			return 'cube:1'
+		case Direction.North:
+		case Direction.West:
+			return 'cube:2'
+	}
 }

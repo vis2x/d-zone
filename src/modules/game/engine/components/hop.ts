@@ -1,4 +1,4 @@
-import { Component } from 'ape-ecs'
+import { Component, Entity, EntityRef } from 'ape-ecs'
 import { Direction } from '../../typings'
 
 /** Data for hopping or attempting to hop. */
@@ -9,10 +9,12 @@ export default class Hop extends Component {
 	y!: number
 	/** The relative Z coordinate of the hop. */
 	z!: number
+	/** The entity added to the map to reserve the target grid of the hop. */
+	placeholder!: Entity | null
 	/** The direction of the hop. */
 	direction!: Direction
-	/** The [0-1] progress of the hop. */
-	progress!: number
+	/** The current tick number of the hop. */
+	tick!: number
 	/** The frame of the hop animation to display. */
 	frame!: number
 	static typeName = 'Hop'
@@ -21,8 +23,9 @@ export default class Hop extends Component {
 		x: 0,
 		y: 0,
 		z: 0,
+		placeholder: EntityRef,
 		direction: null,
-		progress: 0,
+		tick: 0,
 		frame: 0,
 	}
 }
