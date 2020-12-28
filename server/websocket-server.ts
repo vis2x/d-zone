@@ -26,7 +26,7 @@ export class WebSocketServer<
 		const webSocketServer = new WSServer({ server: httpServer })
 
 		webSocketServer.on('connection', (client) => {
-			if (client.readyState === 1) {
+			if (client.readyState === client.OPEN) {
 				this.emit('connectionOpen', client)
 			} else {
 				client.on('open', () => this.emit('connectionOpen', client))
