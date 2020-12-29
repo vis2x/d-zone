@@ -11,7 +11,7 @@ export default class Map extends Component {
 		map: null,
 	}
 	preDestroy() {
-		// Remove the entity from the map
+		// Remove the entity from the map when this component is destroyed
 		const entityGrid = this.map.getCellGrid(this.entity)
 		if (entityGrid) this.map.removeCellFromGrid(this.entity, entityGrid)
 	}

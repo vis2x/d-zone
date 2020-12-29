@@ -150,9 +150,9 @@ export function hopTest(world: World, map: Map3D<Entity>) {
  * @param map - The map instance to create actors in.
  */
 export function seedGame(world: World, map: Map3D<Entity>) {
-	/*const actors = */ addActors(world, map, 10)
-	// setInterval(() => {
-	// 	addHopComponent(actors[Math.floor(Math.random() * actors.length)])
-	// }, 250)
+	const actors = addActors(world, map, 100)
+	setInterval(() => {
+		addHopComponent(actors[Math.floor(Math.random() * actors.length)])
+	}, 250)
 	// hopTest(world, map)
 }
