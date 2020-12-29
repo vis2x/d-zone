@@ -22,12 +22,24 @@ export const GameComponent = () => {
 		gameRef.current.sendMessage(serverMessage)
 	}, [serverMessage])
 
+	const interact = (
+		interaction: 'hopActor' | 'hopAllActors' | 'addActor' | 'removeActor'
+	) => {
+		if (!gameRef.current) return
+		gameRef.current.interactions[interaction]()
+	}
+
 	return (
 		<div>
 			<code>
 				<pre>{JSON.stringify(serverMessage, null, 4)}</pre>
 			</code>
-
+			<div>
+				<button onClick={() => interact('addActor')}>Add Actor</button>
+				<button onClick={() => interact('removeActor')}>Remove Actor</button>
+				<button onClick={() => interact('hopActor')}>Hop Actor</button>
+				<button onClick={() => interact('hopAllActors')}>Hop All Actors</button>
+			</div>
 			<canvas ref={canvasRef} />
 		</div>
 	)

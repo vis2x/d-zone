@@ -2,6 +2,7 @@ import Renderer from './renderer'
 import Resources from './resources'
 import Engine from './engine'
 import Map3D from './common/map-3d'
+import Interactions from './engine/interactions'
 import { registerECS } from './engine/register-ecs'
 import { seedGame } from './engine/seed-dev'
 import type { Entity } from 'ape-ecs'
@@ -14,6 +15,7 @@ export default class Game {
 	resources = new Resources()
 	map = new Map3D<Entity>()
 	engine = new Engine()
+	interactions = new Interactions()
 
 	async init(canvas: HTMLCanvasElement) {
 		// Initialize renderer with canvas
@@ -29,6 +31,9 @@ export default class Game {
 
 		// Create placeholder activity
 		seedGame(this.engine.world, this.map)
+
+		// Initialize interactions manager
+		this.interactions.init(this)
 
 		// Start update loop
 		this.engine.start(TICKS_PER_SECOND)

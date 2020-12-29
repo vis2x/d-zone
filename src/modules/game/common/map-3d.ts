@@ -98,6 +98,15 @@ export default class Map3D<T> {
 	}
 
 	/**
+	 * Returns all cells in the map.
+	 *
+	 * @returns - A Set containing every cell currently in the map.
+	 */
+	getAllCells(): Set<T> {
+		return new Set(this.cellGrids.keys())
+	}
+
+	/**
 	 * Returns the string representation (hash) of a grid.
 	 *
 	 * Note: This hash is used to index the [[cellMap]] of [[Map3D]].

@@ -17,7 +17,7 @@ export function addActors(
 	count: number
 ): Entity[] {
 	const entities: Entity[] = []
-	const gridPool = createGridPool(20, 20, 1)
+	const gridPool = createGridPool(10, 10, 1)
 	for (let i = 0; i < count; i++) {
 		const grid = gridPool.splice(
 			Math.floor(Math.random() * gridPool.length),
@@ -150,9 +150,9 @@ export function hopTest(world: World, map: Map3D<Entity>) {
  * @param map - The map instance to create actors in.
  */
 export function seedGame(world: World, map: Map3D<Entity>) {
-	const actors = addActors(world, map, 100)
-	setInterval(() => {
-		addHopComponent(actors[Math.floor(Math.random() * actors.length)])
-	}, 250)
+	/*const actors = */ addActors(world, map, 10)
+	// setInterval(() => {
+	// 	addHopComponent(actors[Math.floor(Math.random() * actors.length)])
+	// }, 250)
 	// hopTest(world, map)
 }
