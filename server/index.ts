@@ -5,6 +5,7 @@ import discord from 'eris'
 
 import { parseConfig } from './utils/config'
 import { handleError } from './utils/error'
+import { Logger } from './utils/logger'
 import { ClientManager } from './client-manager'
 import { WebSocketServer } from './websocket-server'
 import { IServerPayload } from 'typings/server-payload'
@@ -12,6 +13,8 @@ import { IClientPayload } from 'typings/client-payload'
 
 /** Main function. Everything starts here. */
 async function main() {
+	const mainLogger = new Logger('❄️ MAIN')
+
 	// Get the configuration
 	const config = parseConfig({
 		dev: process.env.NODE_ENV !== 'production',
@@ -30,7 +33,7 @@ async function main() {
 	// Client manager
 	// Manages clients
 	// While handling websocket and discord client communication
-	const clientsManager = new ClientManager(wsServer, discordClient)
+	const clientManager = new ClientManager(wsServer, discordClient)
 
 	// Error handlers
 	httpServer.on('error', handleError)
@@ -39,15 +42,15 @@ async function main() {
 
 	// Start only once discord client is ready
 	discordClient.on('ready', () => {
-		console.log(
-			`❄️ Connected as ${discordClient.user.username} on ${discordClient.guilds.size} servers`
+		mainLogger.log(
+			`Connected as ${discordClient.user.username} on ${discordClient.guilds.size} servers`
 		)
 		// If this is discord reconnecting, do not listen & init again
 		if (!httpServer.listening) {
 			httpServer.listen(config.port)
-			console.log(`❄️ Listening on ${config.port}`)
+			mainLogger.log(`Listening on ${config.port}`)
 
-			clientsManager.init()
+			clientManager.init()
 		}
 	})
 
