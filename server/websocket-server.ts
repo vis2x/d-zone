@@ -26,11 +26,8 @@ export class WebSocketServer<
 		const webSocketServer = new WSServer({ server: httpServer })
 
 		webSocketServer.on('connection', (client) => {
-			if (client.readyState === client.OPEN) {
-				this.emit('connectionOpen', client)
-			} else {
-				client.on('open', () => this.emit('connectionOpen', client))
-			}
+			if (client.readyState === client.OPEN) this.emit('connectionOpen', client)
+			else client.on('open', () => this.emit('connectionOpen', client))
 
 			client.on('close', (...args) =>
 				this.emit('connectionClose', client, ...args)
@@ -63,7 +60,7 @@ export class WebSocketServer<
 
 	sendMessage(client: ws, message: ServerPayload) {
 		return new Promise<void>((resolve, reject) => {
-			if (client.OPEN)
+			if (client.readyState === client.OPEN)
 				client.send(JSON.stringify(message), (error) => {
 					if (error)
 						reject(
