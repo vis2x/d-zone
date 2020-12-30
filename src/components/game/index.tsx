@@ -1,32 +1,35 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect } from 'react'
 
-import Game from '../../modules/game'
+import { useGame } from '../../modules/game'
 import { useComms } from 'web/modules/communication'
 
 export const GameComponent = () => {
-	const canvasRef = useRef<HTMLCanvasElement>(null)
-	const gameRef = useRef<Game | null>(null)
-	const { serverMessage } = useComms()
+	const game = useGame()
+	const { serverMessage, sendSeverPayload } = useComms()
 
+	// Whenever game's status changes
 	useEffect(() => {
-		gameRef.current = new Game()
-		const game = gameRef.current
-		if (canvasRef.current) game.init(canvasRef.current).catch(console.error)
-		return () => {
-			if (game) game.exit()
-		}
-	}, [canvasRef])
+		if (game.status === 'READY')
+			sendSeverPayload({
+				name: 'SUBSCRIBE',
+				event: { guildId: '700890186883530844' },
+			})
 
+		if (game.status === 'ERROR') console.error(game.error)
+	}, [game.status])
+
+	// Whenever we a message from the server
+	// TODO: Thin middleware should come here
 	useEffect(() => {
-		if (!gameRef.current || !serverMessage) return
-		gameRef.current.sendMessage(serverMessage)
+		if (serverMessage?.name === 'INIT') game.addUsers(serverMessage.event.users)
 	}, [serverMessage])
 
+	// Development only
 	const interact = (
 		interaction: 'hopActor' | 'hopAllActors' | 'addActor' | 'removeActor'
 	) => {
-		if (!gameRef.current) return
-		gameRef.current.interactions[interaction]()
+		if (game.status !== 'READY') return
+		game.interactions[interaction]()
 	}
 
 	return (
@@ -40,7 +43,7 @@ export const GameComponent = () => {
 				<button onClick={() => interact('hopActor')}>Hop Actor</button>
 				<button onClick={() => interact('hopAllActors')}>Hop All Actors</button>
 			</div>
-			<canvas ref={canvasRef} />
+			<canvas ref={game.ref} />
 		</div>
 	)
 }

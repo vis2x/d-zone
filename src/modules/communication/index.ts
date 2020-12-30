@@ -16,20 +16,9 @@ export function useComms() {
 		const websocket = new WebSocket(`ws://${location.host}`)
 		websocketRef.current = websocket
 
-		// Helper functions
-		const sendSeverPayload = (payload: IClientPayload) =>
-			websocket.send(JSON.stringify(payload))
-
-		websocket.addEventListener('open', () => {
+		websocket.addEventListener('open', () =>
 			console.log('☎️ Connection Opened')
-
-			// Hard coded for now
-			// In future read url and change accordingly
-			sendSeverPayload({
-				name: 'SUBSCRIBE',
-				event: { guildId: '700890186883530844' },
-			})
-		})
+		)
 
 		websocket.addEventListener('close', () =>
 			console.log('☎️ Connection closed')
@@ -44,5 +33,11 @@ export function useComms() {
 		return () => websocket.close()
 	}, [])
 
-	return { serverMessage }
+	const sendSeverPayload = (payload: IClientPayload) =>
+		websocketRef.current?.send(JSON.stringify(payload))
+
+	return {
+		serverMessage,
+		sendSeverPayload,
+	}
 }

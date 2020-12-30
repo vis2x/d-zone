@@ -6,7 +6,6 @@ import Map from './components/map'
 import Hop from './components/hop'
 import { addHopComponent, createActor } from './archetypes/actor'
 import { Entity, Query, World } from 'ape-ecs'
-import Game from '../'
 import Map3D from 'web/modules/game/common/map-3d'
 import { createGridPool } from 'web/modules/game/engine/seed-dev'
 
@@ -15,10 +14,10 @@ export default class Interactions {
 	private map!: Map3D<Entity>
 	private actorQuery!: Query
 
-	init(game: Game) {
-		this.world = game.engine.world
-		this.map = game.map
-		this.actorQuery = this.world.createQuery({
+	init(world: World, map: Map3D<Entity>) {
+		this.world = world
+		this.map = map
+		this.actorQuery = world.createQuery({
 			all: [Actor, Transform, Draw, Texture, Map],
 			not: [Hop],
 		})

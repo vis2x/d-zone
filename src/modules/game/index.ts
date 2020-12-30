@@ -1,26 +1,24 @@
-import Renderer from './renderer'
-import Resources from './resources'
-import Engine from './engine'
+import type { Entity } from 'ape-ecs'
+import { useEffect, useRef, useState } from 'react'
+import { IUser } from 'root/typings/resources'
 import Map3D from './common/map-3d'
+import Engine from './engine'
 import Interactions from './engine/interactions'
 import { registerECS } from './engine/register-ecs'
-// import { seedGame } from './engine/seed-dev'
-import type { Entity } from 'ape-ecs'
-import type { IServerPayload } from 'root/typings/server-payload'
+import Renderer from './renderer'
+import Resources from './resources'
 
 const TICKS_PER_SECOND = 60
 
-type GameStates = 'READY' | 'NEW' | 'STOPPED'
-
-export default class Game {
-	renderer = new Renderer()
-	resources = new Resources()
-	map = new Map3D<Entity>()
-	engine = new Engine()
+class Game {
+	private readonly renderer = new Renderer()
+	private readonly resources = new Resources()
+	private readonly map = new Map3D<Entity>()
+	private readonly engine = new Engine()
+	// TODO: Make this private in later versions
 	interactions = new Interactions()
-	state: GameStates = 'NEW'
 
-	async init(canvas: HTMLCanvasElement) {
+	public async init(canvas: HTMLCanvasElement) {
 		// Initialize renderer with canvas
 		this.renderer.init(canvas)
 		console.log('Renderer created', this.renderer.app.stage)
@@ -36,26 +34,65 @@ export default class Game {
 		// seedGame(this.engine.world, this.map)
 
 		// Initialize interactions manager
-		this.interactions.init(this)
+		this.interactions.init(this.engine.world, this.map)
+		console.log('Interactions initialized', this.interactions)
 
 		// Start update loop
 		this.engine.start(TICKS_PER_SECOND)
+	}
 
-		this.state = 'READY'
+	addUsers(users: IUser[]) {
+		console.log('Creating actors from user list')
+		users.forEach(() => this.interactions.addActor())
 	}
 
 	exit() {
-		if (this.state !== 'READY') return
 		console.log('Shutting down game')
 		this.renderer.stop()
 		this.engine.stop()
-		this.state = 'STOPPED'
 	}
+}
 
-	sendMessage(msg: IServerPayload) {
-		if (msg.name === 'INIT' && this.state === 'READY') {
-			console.log('Creating actors from user list')
-			msg.event.users.forEach(() => this.interactions.addActor())
+type GameHookState = 'IDLE' | 'LOADING' | 'READY' | 'ERROR'
+
+/**
+ * Game hook
+ *
+ * @returns Hook
+ */
+export function useGame() {
+	const [error, setError] = useState<Error>()
+	const [status, setStatus] = useState<GameHookState>('IDLE')
+
+	const { current: game } = useRef(new Game())
+	const canvasRef = useRef<HTMLCanvasElement | null>(null)
+
+	useEffect(() => {
+		const canvas = canvasRef.current
+
+		if (canvas) {
+			game
+				.init(canvas)
+				.then(() => setStatus('READY'))
+				.catch((error) => {
+					setError(error)
+					setStatus('ERROR')
+				})
 		}
+
+		return () => {
+			game.exit()
+			setStatus('IDLE')
+		}
+	}, [canvasRef])
+
+	return {
+		status,
+		error,
+		ref: canvasRef,
+
+		addUsers: (users: IUser[]) => game.addUsers(users),
+
+		interactions: game.interactions,
 	}
 }
