@@ -33,8 +33,12 @@ export function useComms() {
 		return () => websocket.close()
 	}, [])
 
-	const sendSeverPayload = (payload: IClientPayload) =>
-		websocketRef.current?.send(JSON.stringify(payload))
+	const sendSeverPayload = (payload: IClientPayload) => {
+		const websocket = websocketRef.current
+		if (!websocket) return
+		if (websocket.readyState !== websocket.OPEN) return
+		websocket.send(JSON.stringify(payload))
+	}
 
 	return {
 		serverMessage,

@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 
-import { useGame } from '../../modules/game'
+import { useGame } from 'web/modules/game'
 import { useComms } from 'web/modules/communication'
 
 export const GameComponent = () => {
