@@ -10,15 +10,24 @@ export function debug<O>(label: string, object: O) {
 	else
 		return new Proxy(object as Record<string, unknown>, {
 			get: function (target, prop) {
-				console.log(`${label} - Get`, prop)
-
 				const value = Reflect.get(target, prop)
-				if (typeof value === 'function') return value.bind(target)
+
+				console.log(`${label} - Get`, { value, prop })
+
+				if (typeof value === 'function')
+					return (...arg: unknown[]) => {
+						const returnValue = value.bind(target)(...arg)
+						console.log(`${label} - Called`, {
+							prop,
+							arg,
+							returnValue,
+						})
+					}
 				else return value
 			},
 
 			set: function (target, prop, value) {
-				console.log(`${label} - Set`, prop, value)
+				console.log(`${label} - Set`, { prop, value })
 
 				return Reflect.set(target, prop, value)
 			},
