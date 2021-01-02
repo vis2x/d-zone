@@ -1,4 +1,5 @@
-import { World } from 'ape-ecs'
+import { Entity, World } from 'ape-ecs'
+import { debug } from '../../utils/debug'
 
 /**
  * Group names that ECS systems are registered under.
@@ -28,6 +29,10 @@ export default class Engine {
 
 	constructor() {
 		this.world = new World()
+		this.world.entities = debug<Map<string, Entity>>(
+			'Entities',
+			this.world.entities
+		)
 	}
 
 	/** The interval ID for the game loop. */
