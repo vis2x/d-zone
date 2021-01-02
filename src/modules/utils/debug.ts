@@ -1,3 +1,5 @@
+import { BrowserLogger } from './logger'
+
 /**
  * Debug objects only in development mode
  *
@@ -7,17 +9,19 @@
  */
 export function debug<O>(label: string, object: O) {
 	if (process.env.NODE_ENV === 'production') return object
-	else
+	else {
+		const logger = new BrowserLogger(`Debug - ${label}`)
+
 		return new Proxy(object as Record<string, unknown>, {
 			get: function (target, prop) {
 				const value = Reflect.get(target, prop)
 
-				console.log(`${label} - Get`, { value, prop })
+				logger.log(`${label} - Get`, { value, prop })
 
 				if (typeof value === 'function')
 					return (...arg: unknown[]) => {
 						const returnValue = value.bind(target)(...arg)
-						console.log(`${label} - Called`, {
+						logger.log(`${label} - Called`, {
 							prop,
 							arg,
 							returnValue,
@@ -27,9 +31,10 @@ export function debug<O>(label: string, object: O) {
 			},
 
 			set: function (target, prop, value) {
-				console.log(`${label} - Set`, { prop, value })
+				logger.log(`${label} - Set`, { prop, value })
 
 				return Reflect.set(target, prop, value)
 			},
 		}) as O
+	}
 }

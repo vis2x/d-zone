@@ -5,6 +5,7 @@ import {
 	IJoinSuccess,
 	IJoinError,
 } from 'root/typings/server-payload'
+import { BrowserLogger } from '../utils/logger'
 
 interface CommunicationEvents {
 	internalJoinSuccess: [IJoinSuccess['event']]
@@ -13,6 +14,7 @@ interface CommunicationEvents {
 
 export class Communication extends EventEmitter<CommunicationEvents> {
 	private readonly websocket: WebSocket
+	private logger = new BrowserLogger('Communication')
 
 	constructor() {
 		super()
@@ -23,7 +25,7 @@ export class Communication extends EventEmitter<CommunicationEvents> {
 		this.websocket = new WebSocket(wsUrl)
 
 		this.websocket.addEventListener('open', () => {
-			console.log('Connection opened')
+			this.logger.log('Connection opened')
 		})
 
 		this.websocket.addEventListener('message', ({ data }) => {

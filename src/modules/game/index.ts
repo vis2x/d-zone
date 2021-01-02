@@ -1,5 +1,6 @@
 import type { Entity } from 'ape-ecs'
 import { IUser } from 'root/typings/resources'
+import { BrowserLogger } from '../utils/logger'
 import Map3D from './common/map-3d'
 import Engine from './engine'
 import Interactions from './engine/interactions'
@@ -14,39 +15,41 @@ export class Game {
 	private readonly resources = new Resources()
 	private readonly map = new Map3D<Entity>()
 	private readonly engine = new Engine()
+	private readonly logger = new BrowserLogger('Game')
+
 	// TODO: Make this private in later versions
 	interactions = new Interactions()
 
 	public async init(canvas: HTMLCanvasElement) {
 		// Initialize renderer with canvas
 		this.renderer.init(canvas)
-		console.log('Renderer created', this.renderer.app.stage)
+		this.logger.log('Renderer created', this.renderer.app.stage)
 
 		await this.resources.load()
-		console.log('Resources loaded')
+		this.logger.log('Resources loaded')
 
 		// Register ECS components and systems
 		registerECS(this.engine, this.renderer, this.resources)
-		console.log('ECS world initialized!', this.engine.world)
+		this.logger.log('ECS world initialized!', this.engine.world)
 
 		// Create placeholder activity
 		// seedGame(this.engine.world, this.map)
 
 		// Initialize interactions manager
 		this.interactions.init(this.engine.world, this.map)
-		console.log('Interactions initialized', this.interactions)
+		this.logger.log('Interactions initialized', this.interactions)
 
 		// Start update loop
 		this.engine.start(TICKS_PER_SECOND)
 	}
 
 	addUsers(users: IUser[]) {
-		console.log('Creating actors from user list')
+		this.logger.log('Creating actors from user list')
 		users.forEach(() => this.interactions.addActor())
 	}
 
 	exit() {
-		console.log('Shutting down game')
+		this.logger.log('Shutting down game')
 		this.renderer.stop()
 		this.engine.stop()
 	}
