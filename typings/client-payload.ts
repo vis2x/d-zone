@@ -1,7 +1,7 @@
-export type IClientPayload = ISubscribe
+export type IClientPayload = IJoin
 
-export interface ISubscribe {
-	name: 'SUBSCRIBE'
+export interface IJoin {
+	name: 'JOIN'
 	event: {
 		guildId: string
 	}

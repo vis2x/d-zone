@@ -1,25 +1,21 @@
 import { IServer, IUser } from './resources'
 
-export enum ServerError {
-	'SERVER_NOT_FOUND',
-}
-
-interface IError {
-	name: 'ERROR'
-	event: {
-		error: ServerError
-	}
-}
-
-interface IInit {
-	name: 'INIT'
+export interface IJoinSuccess {
+	name: 'JOIN_SUCCESS'
 	event: {
 		users: IUser[]
 		server: IServer
 	}
 }
 
-interface IUserModify {
+export interface IJoinError {
+	name: 'JOIN_ERROR'
+	event: {
+		error: 'SERVER_NOT_FOUND' | 'UNAUTHORISED'
+	}
+}
+
+export interface IUserModify {
 	name: 'USER_MODIFY'
 	event: {
 		user: Partial<IUser>
@@ -27,7 +23,7 @@ interface IUserModify {
 	}
 }
 
-interface IMessage {
+export interface IMessage {
 	name: 'MESSAGE'
 	event: {
 		message: string
@@ -35,4 +31,4 @@ interface IMessage {
 	}
 }
 
-export type IServerPayload = IError | IInit | IUserModify | IMessage
+export type IServerPayload = IJoinSuccess | IJoinError | IUserModify | IMessage

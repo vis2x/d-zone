@@ -1,47 +1,58 @@
-import { useState, useEffect, useRef } from 'react'
+import EventEmitter from 'eventemitter3'
 import { IClientPayload } from 'root/typings/client-payload'
-import { IServerPayload } from 'root/typings/server-payload'
+import {
+	IServerPayload,
+	IJoinSuccess,
+	IJoinError,
+} from 'root/typings/server-payload'
 
-/**
- * Communication hook
- *
- * @returns Hook
- */
-export function useComms() {
-	const [serverMessage, setServerMessage] = useState<IServerPayload>()
-	const websocketRef = useRef<WebSocket>()
+interface CommunicationEvents {
+	internalJoinSuccess: [IJoinSuccess['event']]
+	internalJoinError: [IJoinError['event']]
+}
 
-	// Create websocket and attach handlers only on first render
-	useEffect(() => {
-		const websocket = new WebSocket(`ws://${location.host}`)
-		websocketRef.current = websocket
+export class Communication extends EventEmitter<CommunicationEvents> {
+	private readonly websocket: WebSocket
 
-		websocket.addEventListener('open', () =>
-			console.log('☎️ Connection Opened')
-		)
+	constructor() {
+		super()
 
-		websocket.addEventListener('close', () =>
-			console.log('☎️ Connection closed')
-		)
+		const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:'
+		const wsUrl = protocol + '//' + location.host
 
-		websocket.addEventListener('message', ({ data }) => {
-			const parsedData: IServerPayload = JSON.parse(data)
-			setServerMessage(parsedData)
+		this.websocket = new WebSocket(wsUrl)
+
+		this.websocket.addEventListener('open', () => {
+			console.log('Connection opened')
 		})
 
-		// Clean up function
-		return () => websocket.close()
-	}, [])
+		this.websocket.addEventListener('message', ({ data }) => {
+			const { name, event }: IServerPayload = JSON.parse(data)
 
-	const sendSeverPayload = (payload: IClientPayload) => {
-		const websocket = websocketRef.current
-		if (!websocket) return
-		if (websocket.readyState !== websocket.OPEN) return
-		websocket.send(JSON.stringify(payload))
+			if (name === 'JOIN_SUCCESS')
+				this.emit('internalJoinSuccess', event as IJoinSuccess['event'])
+			else if (name === 'JOIN_ERROR')
+				this.emit('internalJoinError', event as IJoinError['event'])
+		})
 	}
 
-	return {
-		serverMessage,
-		sendSeverPayload,
+	public join(guildId: string) {
+		return new Promise<IJoinSuccess['event']>((resolve, reject) => {
+			this.once('internalJoinSuccess', (event) => {
+				this.removeListener('internalJoinError')
+				resolve(event)
+			})
+
+			this.once('internalJoinError', (event) => {
+				this.removeListener('internalJoinSuccess')
+				reject(event)
+			})
+
+			this.send({ name: 'JOIN', event: { guildId } })
+		})
+	}
+
+	private send(payload: IClientPayload) {
+		this.websocket.send(JSON.stringify(payload))
 	}
 }

@@ -1,9 +1,6 @@
-import { useEffect, useRef, useState } from 'react'
-import { IUser } from 'root/typings/resources'
-
-import Map3D from './common/map-3d'
 import type { Entity } from 'ape-ecs'
-
+import { IUser } from 'root/typings/resources'
+import Map3D from './common/map-3d'
 import Engine from './engine'
 import Interactions from './engine/interactions'
 import { registerECS } from './engine/register-ecs'
@@ -12,118 +9,45 @@ import Resources from './resources'
 
 const TICKS_PER_SECOND = 60
 
-export enum GameStatus {
-	NOT_INIT,
-	LOADING,
-	READY,
-	SHUTTING_DOWN,
-	SHUT_DOWN,
-	ERROR,
-}
+export class Game {
+	private readonly renderer = new Renderer()
+	private readonly resources = new Resources()
+	private readonly map = new Map3D<Entity>()
+	private readonly engine = new Engine()
+	// TODO: Make this private in later versions
+	interactions = new Interactions()
 
-interface Game {
-	uid: number
-	map: Map3D<Entity>
-	engine: Engine
-	interactions: Interactions
-	renderer: Renderer
-	resources: Resources
-}
+	public async init(canvas: HTMLCanvasElement) {
+		// Initialize renderer with canvas
+		this.renderer.init(canvas)
+		console.log('Renderer created', this.renderer.app.stage)
 
-/**
- * Game hook
- *
- * @returns Hook
- */
-export function useGame() {
-	const [status, setStatus] = useState<GameStatus>(GameStatus.NOT_INIT)
+		await this.resources.load()
+		console.log('Resources loaded')
 
-	const canvasRef = useRef<HTMLCanvasElement | null>(null)
-	const gameRef = useRef<Game | null>(null)
+		// Register ECS components and systems
+		registerECS(this.engine, this.renderer, this.resources)
+		console.log('ECS world initialized!', this.engine.world)
 
-	useEffect(() => {
-		const asyncWrapper = async () => {
-			setStatus(GameStatus.LOADING)
+		// Create placeholder activity
+		// seedGame(this.engine.world, this.map)
 
-			if (canvasRef.current === null) {
-				setStatus(GameStatus.NOT_INIT)
-				return console.log('Skipping effect because canvas not found')
-			}
+		// Initialize interactions manager
+		this.interactions.init(this.engine.world, this.map)
+		console.log('Interactions initialized', this.interactions)
 
-			const map = new Map3D<Entity>()
-			const engine = new Engine()
-			const interactions = new Interactions()
-			const renderer = new Renderer()
-			const resources = new Resources()
+		// Start update loop
+		this.engine.start(TICKS_PER_SECOND)
+	}
 
-			const game: Game = {
-				uid: Math.floor(Math.random() * 1000),
-				map,
-				engine,
-				interactions,
-				renderer,
-				resources,
-			}
+	addUsers(users: IUser[]) {
+		console.log('Creating actors from user list')
+		users.forEach(() => this.interactions.addActor())
+	}
 
-			console.log('Prepared game components', { game })
-
-			renderer.init(canvasRef.current)
-			console.log('Initialised renderer')
-
-			await resources.load()
-			console.log('Resources loaded')
-
-			interactions.init(engine.world, map)
-			console.log('Interactions initialised')
-
-			registerECS(engine, renderer, resources)
-			console.log('Registered ECS')
-
-			engine.start(TICKS_PER_SECOND)
-			console.log(`Started engine at ${TICKS_PER_SECOND}`)
-
-			gameRef.current = game
-
-			setStatus(GameStatus.READY)
-		}
-
-		asyncWrapper().catch((error) => {
-			console.error(error)
-			setStatus(GameStatus.ERROR)
-		})
-
-		// Clean up function run on unmount of the component
-		return function cleanup() {
-			setStatus(GameStatus.SHUTTING_DOWN)
-			const game = gameRef.current
-
-			if (game !== null) {
-				game.renderer.stop()
-				game.engine.stop()
-				gameRef.current = null
-			}
-
-			setStatus(GameStatus.SHUT_DOWN)
-			console.log('Game shut down')
-		}
-	}, [])
-
-	return {
-		ref: canvasRef,
-		status,
-
-		interactions: gameRef.current?.interactions,
-		game: gameRef,
-
-		methods: {
-			addUsers: (users: IUser[]) => {
-				const game = gameRef.current
-
-				if (game === null) {
-					console.error(new Error('Game has not been initialised'))
-					setStatus(GameStatus.ERROR)
-				} else users.forEach(() => game.interactions.addActor())
-			},
-		},
+	exit() {
+		console.log('Shutting down game')
+		this.renderer.stop()
+		this.engine.stop()
 	}
 }

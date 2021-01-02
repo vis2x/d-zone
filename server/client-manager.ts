@@ -3,7 +3,7 @@ import discord from 'eris'
 import { IClientPayload } from '../typings/client-payload'
 import { WebSocketServer } from './websocket-server'
 import { handleErrorProneFn } from './utils/error'
-import { IServerPayload, ServerError } from '../typings/server-payload'
+import { IServerPayload } from '../typings/server-payload'
 
 interface Client {
 	guild?: discord.Guild
@@ -58,8 +58,7 @@ export class ClientManager {
 		client: ws,
 		{ name, event }: IClientPayload
 	) {
-		if (name === 'SUBSCRIBE')
-			await this.handleServerSubscription(event.guildId, client)
+		if (name === 'JOIN') await this.handleServerJoin(event.guildId, client)
 	}
 
 	private async discordClientOnMessageCreate({
@@ -79,14 +78,14 @@ export class ClientManager {
 		}
 	}
 
-	private async handleServerSubscription(id: string, client: ws) {
+	private async handleServerJoin(id: string, client: ws) {
 		const guild = this.discordClient.guilds.get(id)
 
 		if (guild) {
 			this.clients.set(client, { guild })
 
 			await this.websocketServer.sendMessage(client, {
-				name: 'INIT',
+				name: 'JOIN_SUCCESS',
 				event: {
 					users: guild.members.map(({ id, username }) => ({ id, username })),
 					server: { id },
@@ -94,10 +93,8 @@ export class ClientManager {
 			})
 		} else
 			await this.websocketServer.sendMessage(client, {
-				name: 'ERROR',
-				event: {
-					error: ServerError.SERVER_NOT_FOUND,
-				},
+				name: 'JOIN_ERROR',
+				event: { error: 'SERVER_NOT_FOUND' },
 			})
 	}
 }

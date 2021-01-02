@@ -4,3 +4,5 @@ export type OnlyKeys<T> = {
 		? OnlyKeys<T[K]>
 		: unknown
 }
+
+export type Nullable<T> = T | null
