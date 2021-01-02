@@ -22,7 +22,7 @@ export const useDaisy = () => {
 			await game.init(canvasRef.current)
 
 			const { users } = await communication.join('700890186883530844')
-			users.forEach(() => game.interactions.addActor())
+			game.addUsers(users)
 		}
 
 		asyncWrapper().catch(console.error)
@@ -37,5 +37,5 @@ export const useDaisy = () => {
 		}
 	}, [])
 
-	return { canvasRef }
+	return { canvasRef, gameRef }
 }

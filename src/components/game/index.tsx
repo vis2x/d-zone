@@ -2,13 +2,13 @@ import React from 'react'
 import { useDaisy } from 'root/src/modules/daisy'
 
 export const GameComponent = () => {
-	const { canvasRef } = useDaisy()
+	const { canvasRef, gameRef } = useDaisy()
 
 	// Development only
 	const interact = (
 		interaction: 'hopActor' | 'hopAllActors' | 'addActor' | 'removeActor'
 	) => {
-		console.log({ interaction })
+		if (gameRef.current) gameRef.current.interactions[interaction]()
 	}
 
 	return (
