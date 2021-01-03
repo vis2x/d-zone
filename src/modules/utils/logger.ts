@@ -1,5 +1,5 @@
 export class BrowserLogger {
-	successfullColorRGB = [
+	successfulColorRGB = [
 		100 - Math.floor(Math.random() * 80),
 		180 + Math.floor(Math.random() * 175),
 		150 + Math.floor(Math.random() * 105),
@@ -11,7 +11,7 @@ export class BrowserLogger {
 	public log(...message: unknown[]) {
 		console.log(
 			`%c${this.name}`,
-			`background-color: rgb(${this.successfullColorRGB.join(
+			`background-color: rgb(${this.successfulColorRGB.join(
 				','
 			)}); padding: 5px 10px;`,
 			...message
