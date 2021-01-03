@@ -14,11 +14,11 @@ export class Game {
 	private readonly renderer = new Renderer()
 	private readonly resources = new Resources()
 	private readonly map = new Map3D<Entity>()
-	private readonly engine = new Engine()
 	private readonly logger = new BrowserLogger('Game')
 
-	// TODO: Make this private in later versions
+	// Development
 	interactions = new Interactions()
+	engine = new Engine()
 
 	public async init(canvas: HTMLCanvasElement) {
 		// Initialize renderer with canvas
@@ -45,7 +45,9 @@ export class Game {
 
 	addUsers(users: IUser[]) {
 		this.logger.log('Creating actors from user list')
-		users.forEach(() => this.interactions.addActor())
+		users.forEach((_, i) =>
+			setTimeout(() => this.interactions.addActor(), i * 1000)
+		)
 	}
 
 	exit() {

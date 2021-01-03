@@ -1,5 +1,4 @@
-import { Entity, World } from 'ape-ecs'
-import { debug } from '../../utils/debug'
+import { World } from 'ape-ecs'
 
 /**
  * Group names that ECS systems are registered under.
@@ -25,15 +24,7 @@ export enum Tags {
  * @see {@link https://github.com/fritzy/ape-ecs/blob/master/docs/World.md}
  */
 export default class Engine {
-	readonly world: World
-
-	constructor() {
-		this.world = new World()
-		this.world.entities = debug<Map<string, Entity>>(
-			'Entities',
-			this.world.entities
-		)
-	}
+	readonly world = new World()
 
 	/** The interval ID for the game loop. */
 	private interval?: number
