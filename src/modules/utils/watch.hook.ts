@@ -16,7 +16,7 @@ export function useWatch<R>(fn: FunctionType<never[], R>, intervalMs = 0) {
 
 	useEffect(() => {
 		const interval = setInterval(
-			() => {
+			() =>
 				setValue((value) => {
 					const newValue = fn()
 					if (newValue == value.current) return value
@@ -24,7 +24,7 @@ export function useWatch<R>(fn: FunctionType<never[], R>, intervalMs = 0) {
 						prev: value.current,
 						current: newValue,
 					}
-				})},
+				}),
 			intervalMs
 		)
 
