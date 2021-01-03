@@ -19,7 +19,8 @@ export const useDaisy = () => {
 
 		const asyncWrapper = async () => {
 			if (!canvasRef.current) throw new Error('No canvas found')
-			await game.init(canvasRef.current)
+
+			await Promise.all([game.init(canvasRef.current), communication.init()])
 
 			const { users } = await communication.join('700890186883530844')
 			game.addUsers(users)

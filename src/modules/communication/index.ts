@@ -13,28 +13,33 @@ interface CommunicationEvents {
 }
 
 export class Communication extends EventEmitter<CommunicationEvents> {
-	private readonly websocket: WebSocket
+	private websocket?: WebSocket
 	private logger = new BrowserLogger('Communication')
 
 	constructor() {
 		super()
+	}
 
-		const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:'
-		const wsUrl = protocol + '//' + location.host
+	public init() {
+		return new Promise<void>((resolve) => {
+			const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:'
+			const wsUrl = protocol + '//' + location.host
 
-		this.websocket = new WebSocket(wsUrl)
+			this.websocket = new WebSocket(wsUrl)
 
-		this.websocket.addEventListener('open', () => {
-			this.logger.log('Connection opened')
-		})
+			this.websocket.addEventListener('open', () => {
+				this.logger.log('Connection opened')
+				resolve()
+			})
 
-		this.websocket.addEventListener('message', ({ data }) => {
-			const { name, event }: IServerPayload = JSON.parse(data)
+			this.websocket.addEventListener('message', ({ data }) => {
+				const { name, event }: IServerPayload = JSON.parse(data)
 
-			if (name === 'JOIN_SUCCESS')
-				this.emit('internalJoinSuccess', event as IJoinSuccess['event'])
-			else if (name === 'JOIN_ERROR')
-				this.emit('internalJoinError', event as IJoinError['event'])
+				if (name === 'JOIN_SUCCESS')
+					this.emit('internalJoinSuccess', event as IJoinSuccess['event'])
+				else if (name === 'JOIN_ERROR')
+					this.emit('internalJoinError', event as IJoinError['event'])
+			})
 		})
 	}
 
@@ -55,6 +60,7 @@ export class Communication extends EventEmitter<CommunicationEvents> {
 	}
 
 	private send(payload: IClientPayload) {
+		if (!this.websocket) throw new Error('You forgot to connect websocket')
 		this.websocket.send(JSON.stringify(payload))
 	}
 }
