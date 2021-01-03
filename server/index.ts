@@ -19,7 +19,7 @@ async function main() {
 	const config = parseConfig({
 		dev: process.env.NODE_ENV !== 'production',
 		discord: { token: process.env.DISCORD_CLIENT_TOKEN },
-		port: process.env.PORT || 3000,
+		port: parseInt(process.env.PORT || '3000'),
 	})
 
 	// Create servers and discord client
