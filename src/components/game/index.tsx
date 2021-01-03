@@ -4,7 +4,7 @@ import { useWatch } from 'root/src/modules/utils/watch.hook'
 
 export const GameComponent = () => {
 	const { canvasRef, gameRef } = useDaisy()
-	const entites = useWatch(() => gameRef.current?.engine.world.entities.size)
+	const entities = useWatch(() => gameRef.current?.engine.world.entities.size)
 
 	// Development only
 	const interact = (
@@ -15,7 +15,7 @@ export const GameComponent = () => {
 
 	return (
 		<div>
-			<div>Current number of entities - {entites.current}</div>
+			<div>Number of entities - {entities.current}</div>
 
 			<div>
 				<button onClick={() => interact('addActor')}>Add Actor</button>

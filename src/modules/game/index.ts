@@ -46,7 +46,7 @@ export class Game {
 	addUsers(users: IUser[]) {
 		this.logger.log('Creating actors from user list')
 		users.forEach((_, i) =>
-			setTimeout(() => this.interactions.addActor(), i * 1000)
+			setTimeout(() => this.interactions.addActor(), i * 200)
 		)
 	}
 

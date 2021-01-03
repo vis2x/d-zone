@@ -14,14 +14,16 @@ export function useWatch<R>(fn: FunctionType<never[], R>) {
 	})
 
 	useEffect(() => {
-		setInterval(
-			() =>
-				setValue((value) => ({
+		setInterval(() => {
+			setValue((value) => {
+				const newValue = fn()
+				if (newValue == value.current) return value
+				return {
 					prev: value.current,
-					current: fn(),
-				})),
-			0
-		)
+					current: newValue,
+				}
+			})
+		}, 0)
 	}, [])
 
 	return value
