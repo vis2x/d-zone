@@ -1,19 +1,14 @@
+import { TinyColor } from '@ctrl/tinycolor'
+
 export class BrowserLogger {
-	successfulColorRGB = [
-		100 - Math.floor(Math.random() * 80),
-		180 + Math.floor(Math.random() * 175),
-		150 + Math.floor(Math.random() * 105),
-		0.3,
-	]
+	successfulColorRGB = getSuccessfulColor()
 
 	constructor(public readonly name: string) {}
 
 	public log(...message: unknown[]) {
 		console.log(
 			`%c${this.name}`,
-			`background-color: rgb(${this.successfulColorRGB.join(
-				','
-			)}); padding: 5px 10px;`,
+			`background-color: ${this.successfulColorRGB.toRgbString()}; padding: 5px 10px;`,
 			...message
 		)
 	}
@@ -33,4 +28,17 @@ export class BrowserLogger {
 			error
 		)
 	}
+}
+
+let hueOffset = 0
+
+function getSuccessfulColor() {
+	const newColor = new TinyColor({
+		h: 80 + hueOffset + Math.random() * 10,
+		s: 80 + Math.random() * 20,
+		v: 80 + Math.random() * 20,
+		a: 0.4,
+	})
+	hueOffset = (hueOffset + 20) % 100
+	return newColor
 }
