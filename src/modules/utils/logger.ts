@@ -34,11 +34,11 @@ let hueOffset = 0
 
 function getSuccessfulColor() {
 	const newColor = new TinyColor({
-		h: 80 + hueOffset + Math.random() * 10,
+		h: 80 + hueOffset + Math.random() * 8,
 		s: 80 + Math.random() * 20,
 		v: 80 + Math.random() * 20,
 		a: 0.4,
 	})
-	hueOffset = (hueOffset + 20) % 100
+	hueOffset = (hueOffset + 24) % 108
 	return newColor
 }
