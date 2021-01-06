@@ -29,6 +29,7 @@ export default class Renderer {
 	init(canvas: HTMLCanvasElement) {
 		this.app = new PIXI.Application({
 			backgroundColor: BACKGROUND_COLOR,
+			resizeTo: window,
 			view: canvas,
 		})
 
@@ -66,6 +67,13 @@ export default class Renderer {
 		canvas.addEventListener('wheel', (event) => {
 			event.preventDefault() // Disable default mouse wheel behavior
 		})
+
+		window.onresize = () => {
+			this.app.resize()
+			this.view.screenWidth = this.app.screen.width
+			this.view.screenHeight = this.app.screen.height
+			this.view.moveCenter(0, 0)
+		}
 
 		this.cull = new SpatialHash()
 		this.cull.addContainer(this.view) // Culling occurs on the viewport container
