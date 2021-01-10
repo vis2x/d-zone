@@ -30,7 +30,8 @@
 			"web/*": ["./src/*"]
 		},
 
-		"typeRoots": ["./typings-vendor", "./node_modules/@types"]
+		"typeRoots": [
+			"./typings/vendor", "./node_modules/@types"]
 	},
 
 	"include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "**/*.json"],
@@ -41,7 +42,7 @@
 		"next.config.js",
 		"dist",
 		"docs",
-		"typings-vendor"
+		"typings/vendor"
 	],
 
 	"typedocOptions": {

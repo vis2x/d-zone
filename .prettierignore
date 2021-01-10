@@ -2,7 +2,7 @@
 .next/*
 dist/*
 docs/*
-typings-vendor/*
+typings/vendor/*
 .vscode/*
 .pnp.js
 **/coverage/*
