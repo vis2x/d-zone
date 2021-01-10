@@ -1,6 +1,6 @@
 import * as PIXI from 'pixi.js-legacy'
 import { SpatialHash } from 'pixi-cull'
-import { Viewport, BuiltInPlugins } from 'pixi-viewport'
+import { Viewport } from 'pixi-viewport'
 import WheelStepped from './wheel-stepped'
 import {
 	RENDER_SETTINGS,
@@ -8,10 +8,6 @@ import {
 	ZOOM_OPTIONS,
 	PANNING_FRICTION,
 } from '../config/renderer'
-
-export interface IPlugins extends BuiltInPlugins {
-	'wheel-stepped': WheelStepped
-}
 
 // Global PIXI settings
 PIXI.settings.RESOLUTION = RENDER_SETTINGS.resolution
@@ -22,7 +18,7 @@ export default class Renderer {
 	/** The PIXI application itself */
 	app!: PIXI.Application
 	/** The viewport container which manages camera movement. */
-	view!: Viewport<IPlugins>
+	view!: Viewport
 	/** The culler which prevents off-camera objects from rendering. */
 	cull!: SpatialHash
 
