@@ -1,6 +1,14 @@
 import React from 'react'
 import { useDaisy } from 'root/src/modules/daisy'
 import { useWatch } from 'root/src/modules/utils/watch.hook'
+import styled from 'styled-components'
+
+const Canvas = styled.canvas`
+	position: fixed;
+	top: 0;
+	left: 0;
+	z-index: -1;
+`
 
 export const GameComponent = () => {
 	const { canvasRef, gameRef } = useDaisy()
@@ -23,7 +31,7 @@ export const GameComponent = () => {
 				<button onClick={() => interact('hopActor')}>Hop Actor</button>
 				<button onClick={() => interact('hopAllActors')}>Hop All Actors</button>
 			</div>
-			<canvas ref={canvasRef} />
+			<Canvas ref={canvasRef} />
 		</div>
 	)
 }

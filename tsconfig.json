@@ -28,16 +28,22 @@
 		"paths": {
 			"root/*": ["./*"],
 			"web/*": ["./src/*"]
-		}
+		},
+
+		"typeRoots": [
+			"./typings/vendor", "./node_modules/@types"]
 	},
 
-	"references": [
-		{ "path": "./packages/pixi-viewport" },
-		{ "path": "./packages/pixi-cull" }
-	],
-
 	"include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "**/*.json"],
-	"exclude": ["node_modules", ".next", "out", "next.config.js", "dist", "docs"],
+	"exclude": [
+		"node_modules",
+		".next",
+		"out",
+		"next.config.js",
+		"dist",
+		"docs",
+		"typings/vendor"
+	],
 
 	"typedocOptions": {
 		"mode": "modules",

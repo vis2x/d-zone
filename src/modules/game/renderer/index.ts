@@ -1,6 +1,6 @@
 import * as PIXI from 'pixi.js-legacy'
 import { SpatialHash } from 'pixi-cull'
-import { Viewport, BuiltInPlugins } from 'pixi-viewport'
+import { Viewport } from 'pixi-viewport'
 import WheelStepped from './wheel-stepped'
 import {
 	RENDER_SETTINGS,
@@ -8,10 +8,6 @@ import {
 	ZOOM_OPTIONS,
 	PANNING_FRICTION,
 } from '../config/renderer'
-
-export interface IPlugins extends BuiltInPlugins {
-	'wheel-stepped': WheelStepped
-}
 
 // Global PIXI settings
 PIXI.settings.RESOLUTION = RENDER_SETTINGS.resolution
@@ -22,13 +18,14 @@ export default class Renderer {
 	/** The PIXI application itself */
 	app!: PIXI.Application
 	/** The viewport container which manages camera movement. */
-	view!: Viewport<IPlugins>
+	view!: Viewport
 	/** The culler which prevents off-camera objects from rendering. */
 	cull!: SpatialHash
 
 	init(canvas: HTMLCanvasElement) {
 		this.app = new PIXI.Application({
 			backgroundColor: BACKGROUND_COLOR,
+			resizeTo: window,
 			view: canvas,
 		})
 
@@ -66,6 +63,13 @@ export default class Renderer {
 		canvas.addEventListener('wheel', (event) => {
 			event.preventDefault() // Disable default mouse wheel behavior
 		})
+
+		window.onresize = () => {
+			this.app.resize()
+			this.view.screenWidth = this.app.screen.width
+			this.view.screenHeight = this.app.screen.height
+			this.view.moveCenter(0, 0)
+		}
 
 		this.cull = new SpatialHash()
 		this.cull.addContainer(this.view) // Culling occurs on the viewport container

@@ -4,7 +4,7 @@ import styled from 'styled-components'
 import dynamic from 'next/dynamic'
 
 const Layout = styled.div`
-	height: 100vh;
+	//height: 100vh;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
@@ -30,7 +30,6 @@ export default function Home() {
 			<Head>
 				<title>D-Zone</title>
 			</Head>
-
 			<Layout>
 				<Title>Hey there!</Title>
 				<Game />
