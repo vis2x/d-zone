@@ -4175,10 +4175,12 @@ __metadata:
     react: ^16.8.0
     react-dom: ^16.8.0
     react-is: ^16.8.0
+    root: "link:./"
     styled-components: ^5.2.1
     ts-node: ^9.0.0
     typedoc: ^0.19.2
     typescript: ^4.1.2
+    web: "link:./src"
     ws: ^7.4.0
     zod: ^1.11.10
   languageName: unknown
@@ -9081,6 +9083,12 @@ fsevents@~2.1.2:
   languageName: node
   linkType: hard
 
+"root@link:./::locator=d-zone%40workspace%3A.":
+  version: 0.0.0-use.local
+  resolution: "root@link:./::locator=d-zone%40workspace%3A."
+  languageName: node
+  linkType: soft
+
 "run-async@npm:^2.4.0":
   version: 2.4.1
   resolution: "run-async@npm:2.4.1"
@@ -10722,6 +10730,12 @@ typescript@^4.1.2:
   checksum: f7565075a9a57428656d848ba48fd85dfebe6af1a82c77f947b5112838b6e14d0d76768f438e6b25cef3fb57f8d5b3595b0bbc20e2c9bdf9761fd0a2c138ca61
   languageName: node
   linkType: hard
+
+"web@link:./src::locator=d-zone%40workspace%3A.":
+  version: 0.0.0-use.local
+  resolution: "web@link:./src::locator=d-zone%40workspace%3A."
+  languageName: node
+  linkType: soft
 
 "webidl-conversions@npm:^4.0.2":
   version: 4.0.2

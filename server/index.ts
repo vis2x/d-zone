@@ -8,8 +8,8 @@ import { handleError } from './utils/error'
 import { Logger } from './utils/logger'
 import { ClientManager } from './client-manager'
 import { WebSocketServer } from './websocket-server'
-import { IServerPayload } from 'typings/server-payload'
-import { IClientPayload } from 'typings/client-payload'
+import { IServerPayload } from '../typings/server-payload'
+import { IClientPayload } from '../typings/client-payload'
 
 /** Main function. Everything starts here. */
 async function main() {
